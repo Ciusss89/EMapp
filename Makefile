@@ -12,6 +12,8 @@ RIOTBASE ?= $(CURDIR)/../RIOT/
 # development process:
 CFLAGS += -DDEVELHELP
 
+DIRS += $(CURDIR)/energy_meter
+
 # Change this to 0 show compiler invocation lines by default:
 QUIET ?= 1
 
@@ -19,5 +21,6 @@ QUIET ?= 1
 USEMODULE += shell
 USEMODULE += shell_commands
 USEMODULE += ps
+USEMODULE += energy_meter
 
 include $(RIOTBASE)/Makefile.include
