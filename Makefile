@@ -14,6 +14,7 @@ CFLAGS += -DDEVELHELP
 
 DIRS += $(CURDIR)/energy_meter
 FEATURES_REQUIRED += periph_adc
+USEMODULE += printf_float
 
 # Change this to 0 show compiler invocation lines by default:
 QUIET ?= 1
