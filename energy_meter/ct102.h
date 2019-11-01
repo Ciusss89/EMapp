@@ -4,7 +4,7 @@
 
 /* Current Transformers (CT) sensor YHDC TA1020 */
 
-#define ABS_MAX_INPUT	20U	/* Assume a range  0-20A max */
+#define CT_MAX_INPUT	20U	/* Assume a range  0-20A max */
 #define CT_MAX_OUPUT	20U	/* Max rated ouput in mA */
 #define CT_RATIO	1000U	/* Turns ratio */
 #define CT_LOAD		50U	/* Max Sampling resistance in Ω */
