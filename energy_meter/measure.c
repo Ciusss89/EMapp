@@ -123,7 +123,7 @@ static int16_t _adc_measure(const uint8_t ch, const bool bias_rem)
 	return val;
 }
 
-int get_measure(const uint8_t ch_I, const uint8_t ch_V, struct em_data *em)
+int get_measure(const uint8_t ch_I, const uint8_t ch_V, struct em_realtime *em)
 {
 	uint32_t sum_squared_c = 0, sum_squared_v = 0;
 	int16_t I[SAMPLE_UNIT], V[SAMPLE_UNIT];
@@ -169,7 +169,7 @@ int get_measure(const uint8_t ch_I, const uint8_t ch_V, struct em_data *em)
 #endif
 
 	/* save the rms measure of voltage and current */
-	em->rms_c = ((rms_in_c * CT_RATIO)/ bur_resistor);
+	em->rms_c = ((rms_in_c * CT_RATIO) / bur_resistor);
 	em->rms_v = 230; /* I don't have the voltage probe yet */
 	(void)rms_in_v;  /* workaround to silent the -Werror=unused-but-set-variable*/
 

@@ -14,26 +14,64 @@
 #include "timex.h"
 
 #define APP_NAME	"EnergMeter"
+#define SAMPLING_PRIO	(THREAD_PRIORITY_MAIN - 1)
+#define LOGGING_PRIO	(THREAD_PRIORITY_MAIN - 2)
 
-char em_thread_stack[THREAD_STACKSIZE_DEFAULT];
+static int8_t pid_sampling = -1;
+static int8_t pid_logging = -1;
 
-static bool em_measuring_running = false;
+char em_sampling_stack[THREAD_STACKSIZE_SMALL];
+char em_logging_stack[THREAD_STACKSIZE_LARGE];
 
-static struct em_data p;
+static struct em_realtime em_rt;
+static struct em_loggin em_log;
+
+void *em_log_60s(void *arg)
+{
+	(void)arg;
+	uint8_t t=0;
+
+	printf("[*] Energy Measuring: log minute has started\n");
+	while(1) {
+		em_log.c[t] = em_rt.rms_c;
+		em_log.v[t] = em_rt.rms_v;
+
+		if(t == 59) {
+			while(t > 0) {
+				em_rt.rms_c_1m += em_log.c[t];
+				em_rt.rms_v_1m += em_log.v[t];
+				t--;
+			}
+			em_rt.rms_c_1m /= 60;
+			em_rt.rms_v_1m /= 60;
+			em_rt.log_1m_ready = true;
+#if VERBOSE >= 3
+			for(uint8_t i = 0; i < 60; i++)
+				printf("\t id=%d I=%.3f V=%.3f\n",
+				       i, em_log.c[i], em_log.v[i]);
+#endif
+		}
+
+		t++;
+		xtimer_usleep(WAIT_1000ms);
+	}
+
+	printf("[*] Energy Measuring: log minute has started\n");
+
+	return NULL;
+}
 
 void *em_measuring(void *arg)
 {
-	int8_t pid;
 	(void)arg;
 
-	em_measuring_running = true;
-	printf("[*] Energy Measuring has started\n");
-
+	printf("[*] Energy Measuring: sampling has started\n");
 	xtimer_ticks32_t last = xtimer_now();
-	while(1){
-		pid = get_measure(ADC_CH_CURRENT, ADC_CH_VOLTAGE, &p);
-		if (pid < 0)
+	while(1) {
+
+		if(get_measure(ADC_CH_CURRENT, ADC_CH_VOLTAGE, &em_rt) < 0)
 			return NULL;
+
 		xtimer_periodic_wakeup(&last, WAIT_1000ms);
 	};
 
@@ -42,18 +80,23 @@ void *em_measuring(void *arg)
 
 void print_struct(void)
 {
-	printf("Current %0.3fA\n", p.rms_c);
-	printf("Voltage %0.3fV\n", p.rms_v);
+	printf("Current %0.3fA\n", em_rt.rms_c);
+	printf("Voltage %0.3fV\n", em_rt.rms_v);
+	if(em_rt.log_1m_ready) {
+		printf("Last minute current average %0.3fA\n", em_rt.rms_c_1m);
+		printf("Last minute voltage average %0.3fV\n", em_rt.rms_v_1m);
+	}
+
 }
 
 int em_handler(int argc, char *argv[])
 {
 	(void)argc;
 	(void)argv;
-	int8_t ret, p1;
+	int8_t ret;
 
 #if VERBOSE > 0
-	printf("[###] DEBUG LEVEL=%u\n", APP_NAME, VERBOSE);
+	printf("[###] DEBUG LEVEL=%u\n", VERBOSE);
 #endif
 
 	printf("Starting %s service...\n", APP_NAME);
@@ -67,22 +110,43 @@ int em_handler(int argc, char *argv[])
 		return -1;
 
 	/* The bias voltage should be VCC/2 */
-	if(!em_measuring_running) {
+	if(pid_sampling == -1) {
 		ret = bias_check(ADC_CH_BIASING);
 		if (ret < 0)
 			return -1;
 	}
 
-	if(!em_measuring_running) {
-	 	p1= thread_create(em_thread_stack,
-				  sizeof(em_thread_stack),
-				  THREAD_PRIORITY_MAIN - 1,
-				  THREAD_CREATE_STACKTEST,
-				  em_measuring, NULL, "em get");
-		if(p1 < KERNEL_PID_UNDEF)
+	if(pid_sampling == -1) {
+
+		pid_sampling = thread_create(em_sampling_stack,
+					     sizeof(em_sampling_stack),
+					     SAMPLING_PRIO,
+					     THREAD_CREATE_STACKTEST,
+					     em_measuring, NULL, "em sampling");
+
+		if(pid_sampling < KERNEL_PID_UNDEF)
+			return -1;
+		else
+			em_rt.log_1m_ready = false;
+
+	} else {
+		printf("[!] Energy Measuring: sampling already started, pid=%d\n",
+			pid_sampling);
+	}
+
+	if (pid_sampling > 0 && pid_logging == -1) {
+
+		pid_logging = thread_create(em_logging_stack,
+				   sizeof(em_logging_stack),
+				   LOGGING_PRIO,
+				   THREAD_CREATE_STACKTEST,
+				   em_log_60s, NULL, "em log minute");
+
+		if(pid_logging < KERNEL_PID_UNDEF)
 			return -1;
 	} else {
-		printf("[!] Energy Measuring already started\n");
+		printf("[!] Energy Measuring: log minute already started, pid=%d\n",
+		       pid_logging);
 	}
 
 	/* Print to stdout the last values */

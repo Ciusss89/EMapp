@@ -7,6 +7,7 @@
 #define CORE_H
 
 #include <stdio.h>
+#include <stdbool.h>
 
 #define VERBOSE		1U	/* VALUES: [0,1,2,3,4] */
 
@@ -71,8 +72,18 @@
 #define M_SQRT2		1.41421356237309504880
 #endif
 
-struct em_data {
-	double rms_c, rms_v;
+/* @em_realtime contains all notable datas
+ */
+struct em_realtime {
+	double rms_c, rms_v; /* real time values, they're update each 60 sec */
+	double rms_c_1m, rms_v_1m; /* last minute average */
+	bool log_1m_ready;
+};
+
+/*
+ */
+struct em_loggin {
+	double c[60], v[60];
 };
 
 /*
@@ -101,7 +112,7 @@ int adc_setup(void);
  * - WARNING: Only the current reading has been tested.
  * - return 0 if the measure loop has success
  */
-int get_measure(const uint8_t ch_I, const uint8_t ch_V, struct em_data *em);
+int get_measure(const uint8_t ch_I, const uint8_t ch_V, struct em_realtime *em);
 
 /* @bias_check:
  *
