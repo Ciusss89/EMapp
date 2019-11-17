@@ -76,18 +76,34 @@ struct em_data {
  */
 
 /* @ct_sensor_setup:
+ *
+ * - setup and initialize the current transformer (CT) block.
+ * - it returns 0 if it has success
  */
 int ct_sensor_setup(void);
 
 /* @adc_setup:
+ *
+ * - setup and initialize the adc block.
+ * - it returns 0 if it has success
  */
 int adc_setup(void);
 
 /* @get_measure:
+ *
+ * - It's consists in the acquisition loop, it collects a number of current and
+ *   voltage samples, compute rms average value and store it.
+ * - It needs of adc's channel of current, voltage, and pointer of struct em_data.
+ * - WARNING: Only the current reading has been tested.
+ * - return 0 if the measure loop has success
  */
 int get_measure(const uint8_t ch_I, const uint8_t ch_V, struct em_data *em);
 
 /* @bias_check:
+ *
+ * - Check if the biasing voltage is present and is good. The bias check
+ *   gets a mesure of DC voltage of the input channel ch_B.
+ * - it returns 0 if it has success
  */
 int bias_check(const uint8_t ch_B);
 
