@@ -165,7 +165,8 @@ int get_measure(const uint8_t ch_I, const uint8_t ch_V, struct em_data *em)
 
 	/* save the rms measure of voltage and current */
 	em->rms_c = ((rms_in_c * CT_RATIO)/ bur_resistor);
-	em->rms_v = 230;/* I don't have the voltage probe yet */
+	em->rms_v = 230; /* I don't have the voltage probe yet */
+	(void)rms_in_v;  /* workaround to silent the -Werror=unused-but-set-variable*/
 
 	return 0;
 }
