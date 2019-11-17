@@ -1,3 +1,8 @@
+/**
+ * Author:	Giuseppe Tipaldi
+ * Created:	2019
+ **/
+
 #include <stdbool.h>
 
 #include "em.h"

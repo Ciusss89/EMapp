@@ -1,3 +1,7 @@
+/**
+ * Author:	Giuseppe Tipaldi
+ * Created:	2019
+ **/
 
 #ifndef CT1020_H
 #define CT1020_H

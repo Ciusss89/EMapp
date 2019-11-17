@@ -1,3 +1,7 @@
+/**
+ * Author:	Giuseppe Tipaldi
+ * Created:	2019
+ **/
 
 #ifndef EM_H
 #define EM_H
