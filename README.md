@@ -1,18 +1,50 @@
 ## Project for CYBER PHYSICAL SYSTEMS course
 
+Welcome to Energy Meter application. I build an energy meter app based on the
+Nucleo-F401 and Riot-OS.
+
+
+
 ### Instructions
-1. setup system: WIP
-2. checkout of the code: WIP
+1. Setup your system. I'm using fedora so the command that you find are based
+   on my distro.
+   ```
+   $ sudo dnf update
+   $ sudo dnf install arm-none-eabi-binutils-cs arm-none-eabi-newlib arm-none-eabi-gcc-cs arm-none-eabi-gcc-cs-c++
+   $ sudo dnf install git-core make stlink make patch vim
+   ```
 
+2. Checkout of the code:
+   ```
+   $ mkdir app
+   $ cd app
+   $ git clone https://github.com/RIOT-OS/RIOT.git
+   $ git clone https://github.com/Ciusss89/_riot-os_app.git
+   ```
 
-## Task 1.1: Run your first application as Linux process
+   The app directory should be contain two `RIOT` and  `_riot-os_app` directory,
+   setup the code:
+
+   ```
+   cd RIOT/
+   git checkout <LATEST_RELEASE>
+   cd ../_riot-os_app
+   git checkout <LATEST_RELEASE>
+   ```
+
+### Energy Meter App: Compile the app
 
 1.  Compile and write the application on the nucleo board:
     ```
     make clean all flash
     ```
-
-2.  Run `help` to see a list of all available commands
+2.  The Nucleo board has debug chip on-board. It connectes its virtual COM
+    `/dev/ttyACM0` to the SUART2 of the mcu. Open new terminal and start uart
+    communication:
+    ```
+    sudo picocom -b 115200 /dev/ttyACM0 --imap lfcrlf
+    ```
+3.  Run `help` to see a list of all available commands
     ```
     > help
     help
@@ -22,13 +54,18 @@
     reboot               Reboot the node
     ps                   Prints information about running threads.
     ```
-### Debug by UART
-The Nucleo board has debug chip on-board. It connectes its virtual COM
-( /dev/ttyACM0 ) to the SUART2 of the mcu:
+### Project Overview
 
- `sudo picocom -b 115200 /dev/ttyACM0 --imap lfcrlf`
+1. Hardware: The STM32F401RE microcontroller is hosted on the Nucleo board.
+2. Current meter probe: I built a cheap current transformer (CT) probe and
+   I used the MCU to collect the data.
+3. I wrote an app called (energy meter) that samples the corresponding  AC
+   voltage of CT and collects data.
 
-## Hardware Overview
+![system](./media/energy_meter_bb.jpg)
+
+
+### Nucleo64 F401 Overview
 
 The Nucleo-F401 is a board from ST's Nucleo family supporting a ARM Cortex-M4
 STM32F401RE microcontroller with 96Kb of SRAM and 512Kb of ROM Flash.
