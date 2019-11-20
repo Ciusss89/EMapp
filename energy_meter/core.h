@@ -22,7 +22,7 @@
  */
 #define ANALOG_IN_VPP	3U
 
-/* Voltage REF*/
+/* Voltage REF */
 #define ANALOG_VCC	3.3
 
 /* ADC CHANNELS */
@@ -44,8 +44,8 @@
 
 /*
  * Sempling:
- * - According to the NYQUEST roule 100Hz should be enaght, but I want at
- *   least 10 semples to compute a RMS value.
+ * - According to the NYQUEST rule a 100Hz sampling frequency should be enagh,
+ *   but I want at least 12 semples to compute a RMS value.
  * - Auto compute the adc sampling time in relation to SAMPLE_UNIT
  * - Auto compute the bias in relation to ADC_RES
  */
@@ -72,15 +72,18 @@
 #define M_SQRT2		1.41421356237309504880
 #endif
 
-/* @em_realtime contains all notable datas
+/* @em_realtime contains all notable datas:
+ * -rms_c/v	 : real time values, they're update each sec
+ * -rms_*_1m	 : last minute average, they're update each 60 sec
+ * -log_1m_ready : true when last minute average is ready
  */
 struct em_realtime {
-	double rms_c, rms_v; /* real time values, they're update each 60 sec */
-	double rms_c_1m, rms_v_1m; /* last minute average */
+	double rms_c, rms_v;
+	double rms_c_1m, rms_v_1m;
 	bool log_1m_ready;
 };
 
-/*
+/* @em_loggin contains all temporary datas
  */
 struct em_loggin {
 	double c[60], v[60];
@@ -108,7 +111,8 @@ int adc_setup(void);
  *
  * - It's consists in the acquisition loop, it collects a number of current and
  *   voltage samples, compute rms average value and store it.
- * - It needs of adc's channel of current, voltage, and pointer of struct em_data.
+ * - It needs of adc's channel of current, voltage, and pointer of struct 
+ *   em_realtime.
  * - WARNING: Only the current reading has been tested.
  * - return 0 if the measure loop has success
  */
@@ -116,8 +120,8 @@ int get_measure(const uint8_t ch_I, const uint8_t ch_V, struct em_realtime *em);
 
 /* @bias_check:
  *
- * - Check if the biasing voltage is present and is good. The bias check
- *   gets a mesure of DC voltage of the input channel ch_B.
+ * - Check if the biasing voltage is present and if it's good. The bias check
+ *   gets a mesure of the DC voltage by input channel ch_B.
  * - it returns 0 if it has success
  */
 int bias_check(const uint8_t ch_B);

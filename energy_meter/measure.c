@@ -15,7 +15,7 @@
 #include "xtimer.h"
 #include "timex.h"
 
-/* ADD current transformer specs */
+/* current transformer specs */
 #include "ct102.h"
 
 /* Primary peak current [A] */

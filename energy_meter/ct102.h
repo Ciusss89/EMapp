@@ -15,4 +15,3 @@
 #define CT_PHASE_SHIFT	12U	/* Phase shitf 12.3' */
 
 #endif
-
