@@ -3,7 +3,7 @@
 Welcome to Energy Meter application. I build an energy meter app based on the
 Nucleo-F401 and Riot-OS.
 
-
+[Release documentation](./media/ITA_final_documentation.pdf)
 
 ### Instructions
 1. Setup your system. I'm using fedora so the command that you find are based
