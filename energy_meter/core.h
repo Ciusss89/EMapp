@@ -9,7 +9,7 @@
 #include <stdio.h>
 #include <stdbool.h>
 
-#define VERBOSE		1U	/* VALUES: [0,1,2,3,4] */
+#define VERBOSE		0U	/* VALUES: [0,1,2,3,4] */
 
 #define RMS_MAX_CURRENT	7U	/* Maxinum Measurable Current */
 #define K		1000
@@ -17,8 +17,8 @@
 #define AC_F		50U	/* AC Frequency */
 
 /*
- * I prefer don't have a rail-to-rail waveform, such expedient should
- * reduce the no-linearity contribs. I instead to set 3.3V I'll use 3V
+ * Avoid rail-to-rail waveform, such expedient should reduce the no-linearity
+ * contribs. I instead to use full range 3.3V, it uses 3V
  */
 #define ANALOG_IN_VPP	3U
 
@@ -73,9 +73,11 @@
 #endif
 
 /* @em_realtime contains all notable datas:
- * -rms_c/v	 : real time values, they're update each sec
- * -rms_*_1m	 : last minute average, they're update each 60 sec
- * -log_1m_ready : true when last minute average is ready
+ *  rms_c: current real time values, update each sec
+ *  rms_v: voltage real time values, update each sec
+ *  rms_c_1m: avg of last minute average, update each 60 sec
+ *  rms_v_1m: avg of last minute average, update each 60 sec
+ *  log_1m_ready: true when last minute avg is ready.
  */
 struct em_realtime {
 	double rms_c, rms_v;
@@ -93,36 +95,36 @@ struct em_loggin {
  * -------API-------
  */
 
-/* @ct_sensor_setup:
+/* @ct_sensor_setup: setup and initialize the current transformer (CT) block.
  *
- * - setup and initialize the current transformer (CT) block.
- * - it returns 0 if it has success
+ * Returns 0 on a success
  */
 int ct_sensor_setup(void);
 
-/* @adc_setup:
+/* @adc_setup: setup and initialize the adc block.
  *
- * - setup and initialize the adc block.
- * - it returns 0 if it has success
+ * Returns 0 on a success
  */
 int adc_setup(void);
 
-/* @get_measure:
+/* @get_measure: Main acquisition loop, it collects a number of current and
+ *               voltage samples, compute rms average value and store it.
+ *               It needs of adc's channel of current, voltage, and pointer
+ *               of struct em_realtime.
  *
- * - It's consists in the acquisition loop, it collects a number of current and
- *   voltage samples, compute rms average value and store it.
- * - It needs of adc's channel of current, voltage, and pointer of struct 
- *   em_realtime.
- * - WARNING: Only the current reading has been tested.
- * - return 0 if the measure loop has success
+ *               WARNING: Only the current reading has been tested.
+ * ch_I: ADC channel where to read the analog input of current
+ * ch_V: ADC channel where to read the analog input of voltage
+ * em: struct em_realtime pointer
+ *
+ * Return 0 on a success
  */
 int get_measure(const uint8_t ch_I, const uint8_t ch_V, struct em_realtime *em);
 
-/* @bias_check:
+/* @bias_check: Check if the biasing voltage is ready and good. The bias check
+ *              gets a mesure of the DC voltage by input channel ch_B.
  *
- * - Check if the biasing voltage is present and if it's good. The bias check
- *   gets a mesure of the DC voltage by input channel ch_B.
- * - it returns 0 if it has success
+ * Returns 0 on a success
  */
 int bias_check(const uint8_t ch_B);
 
