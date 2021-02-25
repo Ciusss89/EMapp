@@ -16,7 +16,7 @@
 #include "timex.h"
 
 /* current transformer specs */
-#include "ct1020.h"
+#include "ct.h"
 
 /* Primary peak current [A] */
 const float p_max_cur = (RMS_MAX_CURRENT *  M_SQRT2);
