@@ -31,7 +31,7 @@ void *em_log_60s(void *arg)
 	(void)arg;
 	uint8_t t=0;
 
-	printf("[*] Energy Measuring: log minute has started\n");
+	puts("[*] Energy Measuring: log minute has started");
 	while(1) {
 		em_log.c[t] = em_rt.rms_c;
 		em_log.v[t] = em_rt.rms_v;
@@ -56,7 +56,7 @@ void *em_log_60s(void *arg)
 		xtimer_usleep(WAIT_1000ms);
 	}
 
-	printf("[*] Energy Measuring: log minute has started\n");
+	puts("[*] Energy Measuring: log minute has started");
 
 	return NULL;
 }
@@ -65,11 +65,11 @@ void *em_measuring(void *arg)
 {
 	(void)arg;
 
-	printf("[*] Energy Measuring: sampling has started\n");
+	puts("[*] Energy Measuring: sampling has started");
 	xtimer_ticks32_t last = xtimer_now();
-	while(1) {
+	while (1) {
 
-		if(get_measure(ADC_CH_CURRENT, ADC_CH_VOLTAGE, &em_rt) < 0)
+		if (get_measure(ADC_CH_CURRENT, ADC_CH_VOLTAGE, &em_rt) < 0)
 			return NULL;
 
 		xtimer_periodic_wakeup(&last, WAIT_1000ms);
