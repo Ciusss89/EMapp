@@ -12,6 +12,16 @@ RIOTBASE ?= $(CURDIR)/../RIOT/
 # development process:
 #CFLAGS += -DDEVELHELP
 
+# Increase the messages level:
+#  0: normal
+#  1: +Prints the infos about current transformer setup, adc setup
+#  2: ++ Prints the final mesured current and voltage.
+#  3: +++ Prints each adc outputs.
+#  4: ++++ Print all
+#
+#  PLEASE NOTE: printfs breaks the timings
+CFLAGS += -DVERBOSE=1
+
 # Change this to 0 show compiler invocation lines by default:
 QUIET ?= 1
 
