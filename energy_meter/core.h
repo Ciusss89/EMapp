@@ -9,7 +9,6 @@
 #include <stdio.h>
 #include <stdbool.h>
 
-#define RMS_MAX_CURRENT	10U	/* Maxinum Measurable Current */
 #define K		1000
 
 #define AC_F		50U	/* AC Frequency */

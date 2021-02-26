@@ -27,6 +27,10 @@ CFLAGS += -DVERBOSE=1
 # 1: YHDC SCT013-000
 CFLAGS += -DCT_TYPE=1
 
+# Max RMS current which wants measure
+#
+CFLAGS += -DRMS_MAX_CURRENT=15
+
 # Change this to 0 show compiler invocation lines by default:
 QUIET ?= 1
 
