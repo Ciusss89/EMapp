@@ -22,6 +22,11 @@ RIOTBASE ?= $(CURDIR)/../RIOT/
 #  PLEASE NOTE: printfs breaks the timings
 CFLAGS += -DVERBOSE=1
 
+# Select the Current Transformer Type:
+# 0: YHDC TA1020
+# 1: YHDC SCT013-000
+CFLAGS += -DCT_TYPE=1
+
 # Change this to 0 show compiler invocation lines by default:
 QUIET ?= 1
 
