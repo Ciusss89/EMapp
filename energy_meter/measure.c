@@ -100,29 +100,6 @@ err:
 	return -1;
 }
 
-static int16_t _adc_measure(const uint8_t ch, const bool bias_rem)
-{
-	int16_t val;
-
-	/* !TODO: evaluation of the noise that acts on ADC block */
-	val = adc_sample(ADC_LINE(ch), ADC_RES);
-	if(val < 0) {
-		printf("[!] sampling failure\n");
-		return -1;
-	}
-
-	/* !TODO: Remove dc bias, find better solution */
-	if(bias_rem)
-		val -= BIAS_OFFSET;
-
-#if VERBOSE >= 4
-	/* WARNING: printf is much time expensive */
-	printf("adc_measure: val=%d\n", val);
-#endif
-
-	return val;
-}
-
 int get_measure(const uint8_t ch_I, const uint8_t ch_V, struct em_realtime *em)
 {
 	uint32_t sum_squared_c = 0, sum_squared_v = 0;
@@ -131,13 +108,12 @@ int get_measure(const uint8_t ch_I, const uint8_t ch_V, struct em_realtime *em)
 	double rms_in_c = 0, rms_in_v = 0;
 
 #if VERBOSE >= 2
-	uint32_t start = 0;
-	start = xtimer_now_usec();
+	const uint32_t start = xtimer_now_usec();;
 #endif
 	do {
 		/* SAMPLING */
-		I[i] = _adc_measure(ADC_LINE(ch_I), true);
-		V[i] = _adc_measure(ADC_LINE(ch_V), true);
+		I[i] = (adc_sample(ADC_LINE(ch_I), ADC_RES) - (BIAS_OFFSET));
+		V[i] = (adc_sample(ADC_LINE(ch_V), ADC_RES) - (BIAS_OFFSET));
 
 		sum_squared_c += (I[i] * I[i]);
 		sum_squared_v += (V[i] * V[i]);
@@ -146,14 +122,12 @@ int get_measure(const uint8_t ch_I, const uint8_t ch_V, struct em_realtime *em)
 		xtimer_usleep(ADC_US_SLEEP);
 	} while (i < SAMPLE_UNIT);
 #if VERBOSE >= 2
-	uint32_t stop = 0;
-	stop = xtimer_now_usec();
+	const uint32_t stop = xtimer_now_usec();
 #endif
 
 #if VERBOSE >= 3
 	for(i = 0; i < SAMPLE_UNIT; i++){
-		 printf("adc_raw_I[%u]=%d\n", i, I[i]);
-		 printf("adc_raw_V[%u]=%d\n", i, V[i]);
+		 printf("adc_samples_raw[%u] I=%d V=%d\n", i, I[i], V[i]);
 	}
 #endif
 
@@ -162,10 +136,9 @@ int get_measure(const uint8_t ch_I, const uint8_t ch_V, struct em_realtime *em)
 	rms_in_v = sqrt(sum_squared_v / (SAMPLE_UNIT)) * adc_scale_factor;
 
 #if VERBOSE >= 2
-	printf("[*] Measure driver output:\n");
-	printf("\t Acquisition loop time %lu usec\n", stop-start );
-	printf("\t RMS mesured voltage for the current: %fV\n", rms_in_c);
-	printf("\t RMS mesured voltage for the voltage: %fV\n", rms_in_v);
+	puts("[*] Measure driver output:");
+	printf("\t Acquisition loop time %lu usec, should be 20000us\n", (stop - start));
+	printf("\t RMS mesured voltage for the current: %fV, the voltage: %f\n", rms_in_c, rms_in_v);
 #endif
 
 	/* save the rms measure of voltage and current */
@@ -176,7 +149,7 @@ int get_measure(const uint8_t ch_I, const uint8_t ch_V, struct em_realtime *em)
 	return 0;
 }
 
-int bias_check(const uint8_t ch_B)
+int bias_check(const uint8_t ch)
 {
 	float ret;
 	float val = 0;
@@ -184,7 +157,7 @@ int bias_check(const uint8_t ch_B)
 
 	/* Bias check */
 	for(uint8_t i = 0; i < BIAS_AVARAGE; i++) {
-		ret = _adc_measure(ch_B, false);
+		ret = adc_sample(ADC_LINE(ch), ADC_RES);
 		ret *= adc_scale_bias;
 		val += ret;
 		xtimer_periodic_wakeup(&last, WAIT_100ms);
@@ -194,12 +167,12 @@ int bias_check(const uint8_t ch_B)
 
 #if VERBOSE >= 1
 	printf("[*] Calibration loop:\n");
-	printf("\t ADC(%u) bias boundary: [%0.2f-%0.2f]V\n", ch_B, V_MIN, V_MAX);
+	printf("\t ADC(%u) bias boundary: [%0.2f-%0.2f]V\n", ch, V_MIN, V_MAX);
 	printf("\t Bias readed voltage: %.4fV\n", val);
 #endif
 
 	if (ret < V_MIN || ret > V_MAX) {
-		printf("[!] Bias check fails for ADC ch(%u), val=%.4fV\n", ch_B, ret);
+		printf("[!] Bias check fails for ADC ch(%u), val=%.4fV\n", ch, ret);
 		goto err;
 	}
 
