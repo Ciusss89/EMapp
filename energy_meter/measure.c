@@ -67,8 +67,18 @@ int adc_setup(void)
 	if(ADC_CH_CURRENT > ADC_NUMOF) {
 		printf("[!] ADC channel (%u) out of range\n", ADC_CH_CURRENT);
 		goto err;
-	} else if (ADC_CH_VOLTAGE > ADC_NUMOF){
+	} else if (ADC_CH_VOLTAGE > ADC_NUMOF) {
 		printf("[!] ADC channel (%u) out of range\n", ADC_CH_VOLTAGE);
+		goto err;
+	} else if (ADC_CH_BIASING > ADC_NUMOF) {
+		printf("[!] ADC channel (%u) out of range\n", ADC_CH_BIASING);
+		goto err;
+	}
+
+	ret = adc_init(ADC_LINE(ADC_CH_BIASING));
+	if(ret < 0) {
+		printf("[!] Initialization of ADC_LINE(%u) failed\n",
+		       ADC_CH_CURRENT);
 		goto err;
 	}
 
