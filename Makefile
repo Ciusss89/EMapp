@@ -14,13 +14,13 @@ RIOTBASE ?= $(CURDIR)/../RIOT/
 
 # Increase the messages level:
 #  0: normal
-#  1: +Prints the infos about current transformer setup, adc setup
-#  2: ++ Prints the final mesured current and voltage.
+#  1: Prints the infos about current transformer setup, adc setup
+#  2: Adds the sempling debug messages
 #  3: +++ Prints each adc outputs.
 #  4: ++++ Print all
 #
 #  PLEASE NOTE: printfs breaks the timings
-CFLAGS += -DVERBOSE=1
+CFLAGS += -DVERBOSE=2
 
 # Select the Current Transformer Type:
 # 0: YHDC TA1020

@@ -31,10 +31,10 @@ const float bur_resistor = ((ANALOG_IN_VPP * 0.5) / s_max_cur);
  * ADC resolution scale. (The value is included in between range: 0-2^ADC_BIT)
  */
 const float tmp_adc_scale_factor = ((1 << ADC_BIT) / ANALOG_IN_VPP);
-const float adc_scale_factor = 1 / tmp_adc_scale_factor;
+const float adc_scale_factor = (1 / tmp_adc_scale_factor);
 
 const float tmp_adc_scale_bias = ((1 << ADC_BIT) / ANALOG_VCC);
-const float adc_scale_bias = 1 / tmp_adc_scale_bias;
+const float adc_scale_bias = (1 / tmp_adc_scale_bias);
 
 int ct_sensor_setup(void)
 {
@@ -116,7 +116,7 @@ int get_measure(const uint8_t ch_I, const uint8_t ch_V, struct em_realtime *em)
 	float rms_in_c = 0, rms_in_v = 0;
 	uint8_t i = 0;
 
-#if VERBOSE >= 2
+#if VERBOSE == 2
 	const uint32_t start = xtimer_now_usec();;
 #endif
 	do {
@@ -130,24 +130,19 @@ int get_measure(const uint8_t ch_I, const uint8_t ch_V, struct em_realtime *em)
 		i++;
 		xtimer_usleep(ADC_US_SLEEP);
 	} while (i < SAMPLE_UNIT);
-#if VERBOSE >= 2
+#if VERBOSE == 2
 	const uint32_t stop = xtimer_now_usec();
-#endif
-
-#if VERBOSE >= 3
-	for(i = 0; i < SAMPLE_UNIT; i++){
-		 printf("adc_samples_raw[%u] I=%d V=%d\n", i, I[i], V[i]);
-	}
+	for(i = 0; i < SAMPLE_UNIT; i++)
+		 printf("[*] adc_samples_raw[%u] I=%d V=%d\n", i, I[i], V[i]);
 #endif
 
 	/* They should be equal to the RMS voltage reads by ADC */
 	rms_in_c = sqrt(sum_squared_c / (SAMPLE_UNIT)) * adc_scale_factor;
 	rms_in_v = sqrt(sum_squared_v / (SAMPLE_UNIT)) * adc_scale_factor;
 
-#if VERBOSE >= 2
-	puts("[*] Measure driver output:");
-	printf("\t Acquisition loop time %lu usec, should be 20000us\n", (stop - start));
-	printf("\t RMS mesured voltage for the current: %fV, the voltage: %f\n", rms_in_c, rms_in_v);
+#if VERBOSE == 2
+	printf("[*] Acquisition time %lu usec, RMS voltage for AC current(%fV), for AC voltage (%fV)\n",
+			(stop - start), rms_in_c, rms_in_v);
 #endif
 
 	/* save the rms measure of voltage and current */
