@@ -20,8 +20,14 @@
 static int8_t pid_sampling = -1;
 static int8_t pid_logging = -1;
 
-char em_sampling_stack[THREAD_STACKSIZE_SMALL];
-char em_logging_stack[THREAD_STACKSIZE_LARGE];
+#if VERBOSE > 1
+#define STACK_SIZE THREAD_STACKSIZE_LARGE
+#else
+#define STACK_SIZE THREAD_STACKSIZE_SMALL
+#endif
+
+char em_sampling_stack[STACK_SIZE];
+char em_logging_stack[STACK_SIZE];
 
 static struct em_realtime em_rt;
 static struct em_loggin em_log;
@@ -57,7 +63,6 @@ void *em_log_60s(void *arg)
 	}
 
 	puts("[*] Energy Measuring: log minute has started");
-
 	return NULL;
 }
 
@@ -120,9 +125,8 @@ int em_handler(int argc, char *argv[])
 
 		pid_sampling = thread_create(em_sampling_stack,
 					     sizeof(em_sampling_stack),
-					     SAMPLING_PRIO,
-					     THREAD_CREATE_STACKTEST,
-					     em_measuring, NULL, "em sampling");
+					     SAMPLING_PRIO, 0, em_measuring,
+					     NULL, "em sampling");
 
 		if(pid_sampling < KERNEL_PID_UNDEF)
 			return -1;
@@ -138,9 +142,8 @@ int em_handler(int argc, char *argv[])
 
 		pid_logging = thread_create(em_logging_stack,
 				   sizeof(em_logging_stack),
-				   LOGGING_PRIO,
-				   THREAD_CREATE_STACKTEST,
-				   em_log_60s, NULL, "em log minute");
+				   LOGGING_PRIO, 0, em_log_60s,
+				   NULL, "em log minute");
 
 		if(pid_logging < KERNEL_PID_UNDEF)
 			return -1;
