@@ -19,7 +19,7 @@ RIOTBASE ?= $(CURDIR)/../RIOT/
 #  3: Print 1 + last 60 seconds measure.
 #
 #  PLEASE NOTE: printfs breaks the timings
-CFLAGS += -DVERBOSE=2
+CFLAGS += -DVERBOSE=0
 
 # Select the Current Transformer Type:
 # 0: YHDC TA1020
@@ -29,6 +29,18 @@ CFLAGS += -DCT_TYPE=1
 # Max RMS current which wants measure
 #
 CFLAGS += -DRMS_MAX_CURRENT=15
+
+# Sempling Unit:
+# - According to the NYQUEST rule a 100Hz sampling frequency should be enough,
+#   but this ins't true if you have to rebuild the signal..
+#
+# - Get at least 12 samples to compute a RMS value. The sampling time is
+#   self computed
+CFLAGS += -DSAMPLE_UNIT=12
+
+# To protect the MCU's GPIO enter the max (mA) current which can sink
+#
+CFLAGS += -DMCU_MAX_CURRENT_SINK=20
 
 # Change this to 0 show compiler invocation lines by default:
 QUIET ?= 1

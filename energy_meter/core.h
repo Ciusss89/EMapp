@@ -29,7 +29,7 @@
 
 #define ADC_RES		ADC_RES_12BIT	/* ADC resolution */
 #if ADC_RES == ADC_RES_12BIT
-#define ADC_BIT 	12U
+#define ADC_BIT		12U
 #elif ADC_RES == ADC_RES_10BIT
 #define ADC_BIT		10U
 #endif
@@ -39,14 +39,6 @@
 #define WAIT_500ms	(500LU * US_PER_MS)	/* delay of 500 ms */
 #define WAIT_1000ms	(1000LU * US_PER_MS)	/* delay of 1 s */
 
-/*
- * Sempling:
- * - According to the NYQUEST rule a 100Hz sampling frequency should be enagh,
- *   but I want at least 12 semples to compute a RMS value.
- * - Auto compute the adc sampling time in relation to SAMPLE_UNIT
- * - Auto compute the bias in relation to ADC_RES
- */
-#define SAMPLE_UNIT		12U
 #define SAMPLE_FREQUENCY	(AC_F * SAMPLE_UNIT)
 #define ADC_US_SLEEP		(K * K * 1/(SAMPLE_FREQUENCY))
 #define BIAS_OFFSET		(1 << ADC_BIT) >> 1
@@ -57,13 +49,6 @@
 
 /* Bias measure count */
 #define BIAS_AVARAGE 10U
-
-/*
- * The The GPIOs can sink or source up to ±8 mA  and sink or
- * source up to ±20 mA except PC13, PC14 and PC15 which can
- * sink or source up to ±3mA.
- */
-#define MCU_MAX_CURRENT_SINK	20U /* 20mA */
 
 #ifndef M_SQRT2
 #define M_SQRT2		1.41421356237309504880
