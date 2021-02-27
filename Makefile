@@ -14,10 +14,9 @@ RIOTBASE ?= $(CURDIR)/../RIOT/
 
 # Increase the messages level:
 #  0: normal
-#  1: Prints the infos about current transformer setup, adc setup
-#  2: Adds the sempling debug messages
-#  3: +++ Prints each adc outputs.
-#  4: ++++ Print all
+#  1: Print the infos about current transformer setup, adc setup
+#  2: Print 1 + the sempling debug messages
+#  3: Print 1 + last 60 seconds measure.
 #
 #  PLEASE NOTE: printfs breaks the timings
 CFLAGS += -DVERBOSE=2

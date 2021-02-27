@@ -35,25 +35,28 @@ static struct em_loggin em_log;
 void *em_log_60s(void *arg)
 {
 	(void)arg;
-	uint8_t t=0;
+	uint8_t t = 0;
 
 	puts("[*] Energy Measuring: log minute has started");
-	while(1) {
+	while (1) {
 		em_log.c[t] = em_rt.rms_c;
 		em_log.v[t] = em_rt.rms_v;
 
 		if(t == 59) {
+
 			while(t > 0) {
 				em_rt.rms_c_1m += em_log.c[t];
 				em_rt.rms_v_1m += em_log.v[t];
 				t--;
 			}
+
 			em_rt.rms_c_1m /= 60;
 			em_rt.rms_v_1m /= 60;
 			em_rt.log_1m_ready = true;
-#if VERBOSE >= 3
+#if VERBOSE == 3
+			/* Precision: 2 digit after the comma */
 			for(uint8_t i = 0; i < 60; i++)
-				printf("\t id=%d I=%.3f V=%.3f\n",
+				printf("\t id=%d I=%.2f V=%.2f\n",
 				       i, em_log.c[i], em_log.v[i]);
 #endif
 		}
