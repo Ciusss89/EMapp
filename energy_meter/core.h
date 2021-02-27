@@ -77,15 +77,15 @@
  *  log_1m_ready: true when last minute avg is ready.
  */
 struct em_realtime {
-	double rms_c, rms_v;
-	double rms_c_1m, rms_v_1m;
+	float rms_c, rms_v;
+	float rms_c_1m, rms_v_1m;
 	bool log_1m_ready;
 };
 
 /* @em_loggin contains all temporary datas
  */
 struct em_loggin {
-	double c[60], v[60];
+	float c[60], v[60];
 };
 
 /*
