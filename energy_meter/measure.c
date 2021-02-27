@@ -27,7 +27,6 @@ const float s_max_cur = (p_max_cur / CT_RATIO);
 /* Burden resitor [Ω] */
 const float bur_resistor = ((ANALOG_IN_VPP * 0.5) / s_max_cur);
 
-
 /* The RMS values computed by get_measure loop are related to
  * ADC resolution scale. (The value is included in between range: 0-2^ADC_BIT)
  */
@@ -114,14 +113,14 @@ int get_measure(const uint8_t ch_I, const uint8_t ch_V, struct em_realtime *em)
 {
 	uint32_t sum_squared_c = 0, sum_squared_v = 0;
 	int16_t I[SAMPLE_UNIT], V[SAMPLE_UNIT];
+	float rms_in_c = 0, rms_in_v = 0;
 	uint8_t i = 0;
-	double rms_in_c = 0, rms_in_v = 0;
 
 #if VERBOSE >= 2
 	const uint32_t start = xtimer_now_usec();;
 #endif
 	do {
-		/* SAMPLING */
+		/* SAMPLING: Remove dc offset */
 		I[i] = (adc_sample(ADC_LINE(ch_I), ADC_RES) - (BIAS_OFFSET));
 		V[i] = (adc_sample(ADC_LINE(ch_V), ADC_RES) - (BIAS_OFFSET));
 
