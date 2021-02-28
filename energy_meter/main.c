@@ -34,9 +34,24 @@ char em_collect_1m_stack[STACK_SIZE];
 static struct em_realtime em_rt;
 static struct em_loggin em_log;
 
+static void collect_10m(uint8_t t)
+{
+	float c = 0, v = 0;
+
+	/* Compute AVG of last 60 values */
+	for(uint8_t i = 0; i < MINUTE; i++) {
+		c += em_log.c[i];
+		v += em_log.v[i];
+	}
+
+	em_log.c10m[t] = (c / MINUTE);
+	em_log.v10m[t] = (v / MINUTE);
+}
+
 static void *collect_1m(UNSUED void *arg)
 {
 	uint8_t t = 0;
+	uint8_t t_10 = 0; /* it counts 10 minute */
 
 	puts("[*] Energy Measuring: collect_1m has started");
 	while (1) {
@@ -48,8 +63,22 @@ static void *collect_1m(UNSUED void *arg)
 		if (t < MINUTE)
 			t++;
 		else {
-			if (!em_log.samples_ready)
-				em_log.samples_ready = true;
+
+			if (!em_log.samples_1m_ready)
+				em_log.samples_1m_ready = true;
+
+			/* each 60 seconds call collect_10m */
+			collect_10m(t_10);
+
+			/* reset each 10m minute */
+			if (t_10 == 9) {
+				 if (!em_log.samples_10m_ready)
+					 em_log.samples_10m_ready = true;
+				t_10 = 0;
+			} else {
+				t_10++;
+			}
+
 			t = 0;
 		}
 
@@ -68,16 +97,48 @@ static void *em_measuring(UNSUED void *arg)
 
 static  void print_data(void)
 {
+	em_rt.rms_c_1m = 0;
+	em_rt.rms_v_1m = 0;
+	em_rt.rms_c_10m = 0;
+	em_rt.rms_v_10m = 0;
+
 #if VERBOSE == 3
-	puts("t,i,v");
-	for(uint8_t i = 0; i < MINUTE; i++)
+	uint8_t i;
+	puts("LAST 60 seconds values [i],[A],[V]");
+	for(i = 0; i < MINUTE; i++)
 		printf("%3d,%3.3f,%3.3f\n", i, em_log.c[i], em_log.v[i]);
+	puts("LAST 10 minute values [i],[A],[V]");
+	for(i = 0; i < 10; i++)
+		printf("%3d,%3.3f,%3.3f\n", i, em_log.c10m[i], em_log.v10m[i]);
 #endif
 
 	printf("Current %0.3fA\n", em_rt.rms_c);
 	printf("Voltage %0.3fV\n", em_rt.rms_v);
-	printf("Last minute current average %0.3fA\n", em_rt.rms_c_1m);
-	printf("Last minute voltage average %0.3fV\n", em_rt.rms_v_1m);
+
+	for(i = 0; i < MINUTE; i++) {
+		em_rt.rms_c_1m += em_log.c[i];
+		em_rt.rms_v_1m += em_log.v[i];
+	}
+
+	em_rt.rms_c_1m /= MINUTE;
+	em_rt.rms_v_1m /= MINUTE;
+	if (em_log.samples_1m_ready) {
+		printf("last minute current average %0.3fa\n", em_rt.rms_c_1m);
+		printf("last minute voltage average %0.3fv\n", em_rt.rms_v_1m);
+	}
+
+	i = 0;
+	for(i = 0; i < 10; i++) {
+		em_rt.rms_c_10m += em_log.c10m[i];
+		em_rt.rms_v_10m += em_log.v10m[i];
+	}
+
+	em_rt.rms_c_10m /= 10;
+	em_rt.rms_v_10m /= 10;
+	if (em_log.samples_10m_ready) {
+		printf("last 10 minute current average %0.3fa\n", em_rt.rms_c_10m);
+		printf("last 10 minute voltage average %0.3fv\n", em_rt.rms_v_10m);
+	}
 }
 
 int em_init(void)
@@ -91,12 +152,20 @@ int em_init(void)
 	printf("Starting %s service...\n", APP_NAME);
 
 	/* Inizializate to 0 the arrays */
-	em_log.samples_ready = false;
+	em_log.samples_1m_ready = false;
+	em_log.samples_10m_ready = false;
 	while(i > MINUTE) {
 		em_log.c[i] = 0;
 		em_log.v[i] = 0;
 		i++;
 	}
+	i = 0;
+	while(i > 10) {
+		em_log.c10m[i] = 0;
+		em_log.v10m[i] = 0;
+		i++;
+	}
+
 
 	/* Current Transformer setup */
 	ct_sensor_setup();

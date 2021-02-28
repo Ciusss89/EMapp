@@ -69,24 +69,27 @@
 /* @em_realtime contains all notable datas:
  *  rms_c: current real time values, update each sec
  *  rms_v: voltage real time values, update each sec
- *  rms_c_1m: avg of last minute average, update each 60 sec
- *  rms_v_1m: avg of last minute average, update each 60 sec
- *  samples_ready: true when  is ready.
+ *  rms_c_1m: avg of last minute, updated each 250ms sec
+ *  rms_v_1m: avg of last minute, updated each 250ms sec
+ *  rms_c_10m: avg of last minute, updated each 60 sec
+ *  rms_v_10m: avg of last minute, updated each 60 sec
  */
 struct em_realtime {
 	float rms_c, rms_v;
 	float rms_c_1m, rms_v_1m;
-	bool samples_ready;
+	float rms_c_10m, rms_v_10m;
 };
 
 /* @struct em_loggin contain collected datas
  *  c[MINUTE]: arrary where to store the current values
  *  v[MINUTE]: arrary where to store the voltage values
- *  samples_ready: true when array is fully initialized.
+ *  samples_1m_ready: true if last 60 seconds values are fully initialized.
+ *  samples_10m_ready: true if last 10 minute values are fully initialized.
  */
 struct em_loggin {
 	float c[MINUTE], v[MINUTE];
-	bool samples_ready;
+	float c10m[10], v10m[10];
+	bool samples_1m_ready, samples_10m_ready;
 };
 
 /*
