@@ -43,6 +43,7 @@
 
 /* Delays */
 #define WAIT_100ms	(100LU * US_PER_MS)	/* delay of 100 ms */
+#define WAIT_250ms	(250LU * US_PER_MS)	/* delay of 250 ms */
 #define WAIT_500ms	(500LU * US_PER_MS)	/* delay of 500 ms */
 #define WAIT_1000ms	(1000LU * US_PER_MS)	/* delay of 1 s */
 
@@ -57,6 +58,9 @@
 /* Bias measure count */
 #define BIAS_AVARAGE 10U
 
+#define MINUTE	240 /* Get a sample each 250ms */
+
+
 #ifndef M_SQRT2
 #define M_SQRT2		1.41421356237309504880
 #endif
@@ -66,18 +70,22 @@
  *  rms_v: voltage real time values, update each sec
  *  rms_c_1m: avg of last minute average, update each 60 sec
  *  rms_v_1m: avg of last minute average, update each 60 sec
- *  log_1m_ready: true when last minute avg is ready.
+ *  samples_ready: true when  is ready.
  */
 struct em_realtime {
 	float rms_c, rms_v;
 	float rms_c_1m, rms_v_1m;
-	bool log_1m_ready;
+	bool samples_ready;
 };
 
-/* @em_loggin contains all temporary datas
+/* @struct em_loggin contain collected datas
+ *  c[MINUTE]: arrary where to store the current values
+ *  v[MINUTE]: arrary where to store the voltage values
+ *  samples_ready: true when array is fully initialized.
  */
 struct em_loggin {
-	float c[60], v[60];
+	float c[MINUTE], v[MINUTE];
+	bool samples_ready;
 };
 
 /*
