@@ -34,9 +34,8 @@ char em_collect_1m_stack[STACK_SIZE];
 static struct em_realtime em_rt;
 static struct em_loggin em_log;
 
-static void *collect_1m(void *arg)
+static void *collect_1m(UNSUED void *arg)
 {
-	(void)arg;
 	uint8_t t = 0;
 
 	puts("[*] Energy Measuring: collect_1m has started");
@@ -59,10 +58,8 @@ static void *collect_1m(void *arg)
 	return NULL;
 }
 
-static void *em_measuring(void *arg)
+static void *em_measuring(UNSUED void *arg)
 {
-	(void)arg;
-
 	puts("[*] Energy Measuring: sampling has started");
 	while (!get_measure(ADC_CH_CURRENT, ADC_CH_VOLTAGE, &em_rt));
 
