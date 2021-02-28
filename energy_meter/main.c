@@ -74,14 +74,7 @@ void *em_measuring(void *arg)
 	(void)arg;
 
 	puts("[*] Energy Measuring: sampling has started");
-	xtimer_ticks32_t last = xtimer_now();
-	while (1) {
-
-		if (get_measure(ADC_CH_CURRENT, ADC_CH_VOLTAGE, &em_rt) < 0)
-			return NULL;
-
-		xtimer_periodic_wakeup(&last, WAIT_1000ms);
-	};
+	while (!get_measure(ADC_CH_CURRENT, ADC_CH_VOLTAGE, &em_rt));
 
 	return NULL;
 }
