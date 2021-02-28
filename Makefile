@@ -19,7 +19,7 @@ RIOTBASE ?= $(CURDIR)/../RIOT/
 #  3: Print 1 + last 60 seconds measure.
 #
 #  PLEASE NOTE: printfs breaks the timings
-CFLAGS += -DVERBOSE=0
+CFLAGS += -DVERBOSE=1
 
 # Select the Current Transformer Type:
 # 0: YHDC TA1020
@@ -37,6 +37,17 @@ CFLAGS += -DRMS_MAX_CURRENT=15
 # - Get at least 12 samples to compute a RMS value. The sampling time is
 #   self computed
 CFLAGS += -DSAMPLE_UNIT=12
+
+# ADC resolution:
+#   0: use 12 BIT
+#   1: use 10 BIT
+#   2: use 8 BIT
+#
+# - Note: If you are using the CT with poor RC circuit as transconductance
+#	  amplifier it's needless to set high resolution due to noise..
+#	  You will use a high resolution if your probe has goog a 
+#	  transconductance amplifier.
+CFLAGS += -DBIT=2
 
 # To protect the MCU's GPIO enter the max (mA) current which can sink
 #

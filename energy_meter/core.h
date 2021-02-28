@@ -27,11 +27,18 @@
 #define ADC_CH_VOLTAGE	5U	/* CN8: A5 (PA5) Analog Input */
 #define ADC_CH_BIASING	3U	/* CN8: A3 (PA3) Analog Input */
 
-#define ADC_RES		ADC_RES_12BIT	/* ADC resolution */
-#if ADC_RES == ADC_RES_12BIT
-#define ADC_BIT		12U
-#elif ADC_RES == ADC_RES_10BIT
-#define ADC_BIT		10U
+
+#if BIT == 0
+#define ADC_RES ADC_RES_12BIT
+#define ADC_BIT 12
+#elif BIT == 1
+#define ADC_RES ADC_RES_10BIT
+#define ADC_BIT 10
+#elif BIT == 2
+#define ADC_RES ADC_RES_8BIT
+#define ADC_BIT 8
+#else
+#error "WRONG ADC RESOLUTION"
 #endif
 
 /* Delays */
@@ -41,7 +48,7 @@
 
 #define SAMPLE_FREQUENCY	(AC_F * SAMPLE_UNIT)
 #define ADC_US_SLEEP		(K * K * 1/(SAMPLE_FREQUENCY))
-#define BIAS_OFFSET		(1 << ADC_BIT) >> 1
+#define BIAS_OFFSET		((1 << ADC_BIT) >> 1)
 
 /* Bias boundary: ANALOG_VCC ± 2,5% */
 #define V_MIN	((ANALOG_VCC * 0.5) - ((ANALOG_VCC / 200) * 2.5))
