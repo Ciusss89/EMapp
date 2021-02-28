@@ -9,5 +9,6 @@
 #include <stdio.h>
 
 int em_handler(int argc, char *argv[]);
+int em_init(void);
 
 #endif

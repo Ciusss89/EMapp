@@ -34,7 +34,7 @@ char em_collect_1m_stack[STACK_SIZE];
 static struct em_realtime em_rt;
 static struct em_loggin em_log;
 
-void *collect_1m(void *arg)
+static void *collect_1m(void *arg)
 {
 	(void)arg;
 	uint8_t t = 0;
@@ -59,7 +59,7 @@ void *collect_1m(void *arg)
 	return NULL;
 }
 
-void *em_measuring(void *arg)
+static void *em_measuring(void *arg)
 {
 	(void)arg;
 
@@ -69,7 +69,7 @@ void *em_measuring(void *arg)
 	return NULL;
 }
 
-void print_struct(void)
+static  void print_data(void)
 {
 #if VERBOSE == 3
 	puts("t,i,v");
@@ -83,10 +83,8 @@ void print_struct(void)
 	printf("Last minute voltage average %0.3fV\n", em_rt.rms_v_1m);
 }
 
-int em_handler(int argc, char *argv[])
+int em_init(void)
 {
-	(void)argc;
-	(void)argv;
 	uint8_t i = 0;
 
 #if VERBOSE > 0
@@ -132,8 +130,13 @@ int em_handler(int argc, char *argv[])
 	if(pid_collect_1m < KERNEL_PID_UNDEF)
 		return -1;
 
+	return 0;
+}
+
+int em_handler(UNSUED int argc, UNSUED char *argv[])
+{
 	/* Print to stdout the last values */
-	print_struct();
+	print_data();
 
 	return 0;
 }

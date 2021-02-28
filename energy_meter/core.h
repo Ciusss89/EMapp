@@ -60,6 +60,7 @@
 
 #define MINUTE	240 /* Get a sample each 250ms */
 
+#define UNSUED __attribute__((__unused__))
 
 #ifndef M_SQRT2
 #define M_SQRT2		1.41421356237309504880
