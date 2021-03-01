@@ -46,6 +46,7 @@
 #define WAIT_250ms	(250LU * US_PER_MS)	/* delay of 250 ms */
 #define WAIT_500ms	(500LU * US_PER_MS)	/* delay of 500 ms */
 #define WAIT_1000ms	(1000LU * US_PER_MS)	/* delay of 1 s */
+#define WAIT_2500ms	(2500LU * US_PER_MS)	/* delay of 2.5 s */
 
 #define SAMPLE_FREQUENCY	(AC_F * SAMPLE_UNIT)
 #define ADC_US_SLEEP		(K * K * 1/(SAMPLE_FREQUENCY))
@@ -59,6 +60,7 @@
 #define BIAS_AVARAGE 10U
 
 #define MINUTE	240 /* Get a sample each 250ms */
+#define MINUTE10 240 /* Get a sample each 2.5s  */
 
 #define UNSUED __attribute__((__unused__))
 
@@ -88,7 +90,7 @@ struct em_realtime {
  */
 struct em_loggin {
 	float c[MINUTE], v[MINUTE];
-	float c10m[10], v10m[10];
+	float c10m[MINUTE10], v10m[MINUTE10];
 	bool samples_1m_ready, samples_10m_ready;
 };
 
