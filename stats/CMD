@@ -1,0 +1,1 @@
+cat laptop.csv | tr '.' ',' > laptop_3.csv
