@@ -55,6 +55,8 @@ static void *collect_1m(UNSUED void *arg)
 
 	puts("[*] Energy Measuring: collect_1m has started");
 	while (1) {
+		xtimer_usleep(WAIT_250ms);
+
 		/* Save the realtime samples */
 		em_log.c[t] = em_rt.rms_c;
 		em_log.v[t] = em_rt.rms_v;
@@ -81,8 +83,6 @@ static void *collect_1m(UNSUED void *arg)
 
 			t = 0;
 		}
-
-		xtimer_usleep(WAIT_250ms);
 	}
 	return NULL;
 }
