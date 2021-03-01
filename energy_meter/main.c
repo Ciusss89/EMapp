@@ -103,13 +103,15 @@ static  void print_data(void)
 	em_rt.rms_v_10m = 0;
 
 #if VERBOSE == 3
+	/* Print into csv format */
 	uint8_t i;
-	puts("LAST 60 seconds values [i],[A],[V]");
+
+	puts("Last 60s samples:\n id;Current;Voltage");
 	for(i = 0; i < MINUTE; i++)
-		printf("%3d,%3.3f,%3.3f\n", i, em_log.c[i], em_log.v[i]);
-	puts("LAST 10 minute values [i],[A],[V]");
+		printf("%3d; %3.3f; %3.3f\n", i, em_log.c[i], em_log.v[i]);
+	puts("Last 10m samples:\n id;Current;Voltage");
 	for(i = 0; i < 10; i++)
-		printf("%3d,%3.3f,%3.3f\n", i, em_log.c10m[i], em_log.v10m[i]);
+		printf("%3d; %3.3f; %3.3f\n", i, em_log.c10m[i], em_log.v10m[i]);
 #endif
 
 	printf("Current %0.3fA\n", em_rt.rms_c);
