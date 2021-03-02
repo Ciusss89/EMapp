@@ -99,10 +99,10 @@ static void *em_measuring(UNSUED void *arg)
 
 static  void print_data(void)
 {
-#if VERBOSE == 3
-	/* Print into csv format */
 	uint8_t i;
 
+#if VERBOSE == 3
+	/* Print into csv format */
 	puts("Last 60s samples:\n id;Current;Voltage");
 	for(i = 0; i < MINUTE; i++)
 		printf("%3d; %3.3f; %3.3f\n", i, em_log.c[i], em_log.v[i]);
