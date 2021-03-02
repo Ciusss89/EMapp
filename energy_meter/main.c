@@ -61,7 +61,6 @@ static void *collect_10m(UNSUED void *arg)
 	return NULL;
 }
 
-
 static void *collect_1m(UNSUED void *arg)
 {
 	uint8_t t = 0; /* it counts 60 seconds */
@@ -141,8 +140,6 @@ static  void print_data(void)
 
 int em_init(void)
 {
-	uint8_t i = 0;
-
 #if VERBOSE > 0
 	printf("[###] DEBUG LEVEL=%u\n", VERBOSE);
 #endif
@@ -152,18 +149,6 @@ int em_init(void)
 	/* Inizializate to 0 the arrays */
 	em_log.samples_1m_ready = false;
 	em_log.samples_10m_ready = false;
-	while(i > MINUTE) {
-		em_log.c[i] = 0;
-		em_log.v[i] = 0;
-		i++;
-	}
-	i = 0;
-	while(i > 10) {
-		em_log.c10m[i] = 0;
-		em_log.v10m[i] = 0;
-		i++;
-	}
-
 
 	/* Current Transformer setup */
 	ct_sensor_setup();
@@ -202,7 +187,6 @@ int em_init(void)
 
 	if(pid_collect_10m < KERNEL_PID_UNDEF)
 		return -1;
-
 
 	return 0;
 }
