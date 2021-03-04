@@ -116,19 +116,22 @@ int adc_setup(void);
  *               of struct em_realtime.
  *
  *               WARNING: Only the current reading has been tested.
- * ch_I: ADC channel where to read the analog input of current
- * ch_V: ADC channel where to read the analog input of voltage
- * em: struct em_realtime pointer
+ * @param[in]: ch_I: ADC channel where to read the analog input of current
+ * @param[in]: ch_V: ADC channel where to read the analog input of voltage
+ * @param[in]: em: struct where to store value
+ * @param[in]: adc_offset: adc offset value
  *
  * Return 0 on a success
  */
-int get_measure(const uint8_t ch_I, const uint8_t ch_V, struct em_realtime *em);
+int get_measure(const uint8_t ch_I, const uint8_t ch_V,
+		struct em_realtime *em, const int adc_offset);
 
 /* @bias_check: Check if the biasing voltage is ready and good. The bias check
  *              gets a mesure of the DC voltage by input channel ch_B.
- *
+ * @param[in]: ch_B: ADC channel
+ * @param[out]: adc_offset: where to store the adc offset
  * Returns 0 on a success
  */
-int bias_check(const uint8_t ch_B);
+int bias_check(const uint8_t ch_B, int *adc_offset);
 
 #endif

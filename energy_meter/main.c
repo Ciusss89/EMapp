@@ -17,6 +17,7 @@
 #define SAMPLING_PRIO	(THREAD_PRIORITY_MAIN - 1)
 #define LOGGING_PRIO	(THREAD_PRIORITY_MAIN - 2)
 
+static int adc_offset;
 static int8_t pid_sampling = -1;
 static int8_t pid_collect_1m = -1;
 static int8_t pid_collect_10m = -1;
@@ -91,7 +92,7 @@ static void *collect_1m(UNSUED void *arg)
 static void *em_measuring(UNSUED void *arg)
 {
 	puts("[*] Energy Measuring: sampling has started");
-	while (!get_measure(ADC_CH_CURRENT, ADC_CH_VOLTAGE, &em_rt));
+	while (!get_measure(ADC_CH_CURRENT, ADC_CH_VOLTAGE, &em_rt, adc_offset));
 
 	return NULL;
 }
@@ -140,6 +141,7 @@ static  void print_data(void)
 
 int em_init(void)
 {
+	int adc_offset;
 #if VERBOSE > 0
 	printf("[###] DEBUG LEVEL=%u\n", VERBOSE);
 #endif
@@ -159,7 +161,7 @@ int em_init(void)
 
 	/* The bias voltage should be VCC/2 */
 	if(pid_sampling == -1) {
-		if (bias_check(ADC_CH_BIASING) < 0)
+		if (bias_check(ADC_CH_BIASING, &adc_offset) < 0)
 			return -1;
 	}
 

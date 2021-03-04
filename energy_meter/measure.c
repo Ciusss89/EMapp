@@ -109,7 +109,8 @@ err:
 	return -1;
 }
 
-int get_measure(const uint8_t ch_I, const uint8_t ch_V, struct em_realtime *em)
+int get_measure(const uint8_t ch_I, const uint8_t ch_V,
+		struct em_realtime *em, const int adc_offset)
 {
 	uint32_t sum_squared_c = 0, sum_squared_v = 0;
 	int16_t I[SAMPLE_UNIT], V[SAMPLE_UNIT];
@@ -120,9 +121,9 @@ int get_measure(const uint8_t ch_I, const uint8_t ch_V, struct em_realtime *em)
 	const uint32_t start = xtimer_now_usec();;
 #endif
 	do {
-		/* SAMPLING: Remove dc offset */
-		I[i] = (adc_sample(ADC_LINE(ch_I), ADC_RES) - (BIAS_OFFSET));
-		V[i] = (adc_sample(ADC_LINE(ch_V), ADC_RES) - (BIAS_OFFSET));
+		/* SAMPLING: Remove dc_bias and adc_offset */
+		I[i] = (adc_sample(ADC_LINE(ch_I), ADC_RES) - (BIAS_OFFSET) - (adc_offset));
+		V[i] = (adc_sample(ADC_LINE(ch_V), ADC_RES) - (BIAS_OFFSET) - (adc_offset));
 
 		sum_squared_c += (I[i] * I[i]);
 		sum_squared_v += (V[i] * V[i]);
@@ -153,30 +154,32 @@ int get_measure(const uint8_t ch_I, const uint8_t ch_V, struct em_realtime *em)
 	return 0;
 }
 
-int bias_check(const uint8_t ch)
+int bias_check(const uint8_t ch, int *offset)
 {
-	float ret;
-	float val = 0;
+	float bias_voltage;
+
+	*offset = 0;
 	xtimer_ticks32_t last = xtimer_now();
 
 	/* Bias check */
-	for(uint8_t i = 0; i < BIAS_AVARAGE; i++) {
-		ret = adc_sample(ADC_LINE(ch), ADC_RES);
-		ret *= adc_scale_bias;
-		val += ret;
+	for(uint8_t i = 0; i < SAMPLE_UNIT; i++) {
+		*offset += adc_sample(ADC_LINE(ch), ADC_RES);
 		xtimer_periodic_wakeup(&last, WAIT_100ms);
 	}
 
-	val /= BIAS_AVARAGE;
+	/* Ignore deciamal part */
+	*offset /= SAMPLE_UNIT;
+
+	/* Rappresent in voltage */
+	bias_voltage = *offset * adc_scale_bias;
 
 #if VERBOSE >= 1
-	printf("[*] Calibration loop:\n");
-	printf("\t ADC(%u) bias boundary: [%0.2f-%0.2f]V\n", ch, V_MIN, V_MAX);
-	printf("\t Bias readed voltage: %.4fV\n", val);
+	printf("[*] ADC Calibration: Target=[%d], Mesured=[%d], Bias=[%gV]\n",
+		BIAS_OFFSET, *offset, bias_voltage);
 #endif
 
-	if (ret < V_MIN || ret > V_MAX) {
-		printf("[!] Bias check fails for ADC ch(%u), val=%.4fV\n", ch, ret);
+	if (bias_voltage < V_MIN || bias_voltage > V_MAX) {
+		printf("[!] Bias check fails for ADC ch(%u), val=%gV\n", ch, bias_voltage);
 		goto err;
 	}
 
