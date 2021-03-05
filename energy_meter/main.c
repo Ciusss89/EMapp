@@ -39,7 +39,7 @@ static struct em_loggin em_log;
 
 static void *collect_60m(UNSUED void *arg)
 {
-	uint8_t t = 0; /* it counts 10 minute */
+	uint8_t t = 0; /* it counts 60 minute */
 
 	puts("[*] Energy Measuring: collect_60m has started");
 	while (1) {
@@ -54,7 +54,7 @@ static void *collect_60m(UNSUED void *arg)
 		 * samples
 		 */
 		if (t == MINUTE60) {
-			/* Each 10s set 60m stats as ready. */
+			/* Each 60 minute sets 60m stats as ready. */
 			if (!em_log.samples_60m_ready)
 				em_log.samples_60m_ready = true;
 			t = 0;
@@ -82,7 +82,7 @@ static void *collect_10m(UNSUED void *arg)
 		 * samples
 		 */
 		if (t == MINUTE10) {
-			/* Each 10s set 10m stats as ready. */
+			/* Each 10 minute sets 10m stats as ready. */
 			if (!em_log.samples_10m_ready)
 				em_log.samples_10m_ready = true;
 			t = 0;
@@ -109,7 +109,7 @@ static void *collect_1m(UNSUED void *arg)
 		 * samples
 		 */
 		if (t == MINUTE) {
-			/* Each 60s  set 60s stats as ready. */
+			/* Each one minte sets 60s stats as ready. */
 			if (!em_log.samples_1m_ready)
 				em_log.samples_1m_ready = true;
 			t = 0;
@@ -202,9 +202,10 @@ int em_init(void)
 
 	printf("Starting %s service...\n", APP_NAME);
 
-	/* Inizializate to 0 the arrays */
+	/* Inizializate to false */
 	em_log.samples_1m_ready = false;
 	em_log.samples_10m_ready = false;
+	em_log.samples_60m_ready = false;
 
 	/* Current Transformer setup */
 	ct_sensor_setup();

@@ -16,7 +16,7 @@ RIOTBASE ?= $(CURDIR)/../RIOT/
 #  0: normal
 #  1: Print the infos about current transformer setup, adc setup
 #  2: Print 1 + the sempling debug messages
-#  3: Print 1 + last 60 seconds measure.
+#  3: Print 1 + last minute, 10minutes, 60minutes value
 #
 #  PLEASE NOTE: printfs breaks the timings
 CFLAGS += -DVERBOSE=3
@@ -46,7 +46,7 @@ CFLAGS += -DSAMPLE_UNIT=12
 #
 # - Note: If you are using the CT with poor RC circuit as transconductance
 #	  amplifier it's needless to set high resolution due to noise...
-#	  You will use a high resolution if your probe has goog a 
+#	  You will use a high resolution if your probe has good a
 #	  transconductance amplifier.
 CFLAGS += -DBIT=2
 

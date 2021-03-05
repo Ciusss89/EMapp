@@ -120,6 +120,7 @@ int get_measure(const uint8_t ch_I, const uint8_t ch_V,
 #if VERBOSE == 2
 	const uint32_t start = xtimer_now_usec();;
 #endif
+	/* Moving Average Algorithm */
 	do {
 		/* SAMPLING: Remove dc_bias and adc_offset */
 		I[i] = (adc_sample(ADC_LINE(ch_I), ADC_RES) - (BIAS_OFFSET) - (adc_offset));
@@ -148,7 +149,12 @@ int get_measure(const uint8_t ch_I, const uint8_t ch_V,
 
 	/* save the rms measure of voltage and current */
 	em->rms_c = ((rms_in_c * CT_RATIO) / bur_resistor);
-	em->rms_v = 230; /* I don't have the voltage probe yet */
+
+	/* XXX:
+	 * Because I don't have the voltage probe yet, set 230V as default
+	 * value. The sampleing loop is ready to work also for voltage
+	 */
+	em->rms_v = 230;
 	(void)rms_in_v;  /* workaround to silent the -Werror=unused-but-set-variable*/
 
 	return 0;
