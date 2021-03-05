@@ -135,13 +135,13 @@ static  void print_data(void)
 	/* Print into csv format */
 	puts("Last 60s samples:\n id;Current;Voltage");
 	for(i = 0; i < MINUTE; i++)
-		printf("%3d; %3.3f; %3.3f\n", i, em_log.c[i], em_log.v[i]);
+		printf("%3d; %3.2f; %3.2f\n", i, em_log.c[i], em_log.v[i]);
 	puts("Last 10m samples:\n id;Current;Voltage");
 	for(i = 0; i < MINUTE10; i++)
-		printf("%3d; %3.3f; %3.3f\n", i, em_log.c10m[i], em_log.v10m[i]);
+		printf("%3d; %3.2f; %3.2f\n", i, em_log.c10m[i], em_log.v10m[i]);
 	puts("Last 60m samples:\n id;Current;Voltage");
 	for(i = 0; i < MINUTE10; i++)
-		printf("%3d; %3.3f; %3.3f\n", i, em_log.c60m[i], em_log.v60m[i]);
+		printf("%3d; %3.2f; %3.2f\n", i, em_log.c60m[i], em_log.v60m[i]);
 #endif
 
 	printf("Current %gA\n", em_rt.rms_c);
@@ -174,22 +174,22 @@ static  void print_data(void)
 	if (em_log.samples_1m_ready) {
 		em_rt.rms_c_1m /= MINUTE;
 		em_rt.rms_v_1m /= MINUTE;
-		printf("last 60 seconds current average %gA\n", em_rt.rms_c_1m);
-		printf("last 60 seconds voltage average %gV\n", em_rt.rms_v_1m);
+		printf("last 60 seconds current average %3.2fA\n", em_rt.rms_c_1m);
+		printf("last 60 seconds voltage average %3.2fV\n", em_rt.rms_v_1m);
 	}
 
 	if (em_log.samples_10m_ready) {
 		em_rt.rms_c_10m /= MINUTE10;
 		em_rt.rms_v_10m /= MINUTE10;
-		printf("last 10 minutes current average %gA\n", em_rt.rms_c_10m);
-		printf("last 10 minute voltage average %gV\n", em_rt.rms_v_10m);
+		printf("last 10 minutes current average %3.2fA\n", em_rt.rms_c_10m);
+		printf("last 10 minute voltage average %3.2fV\n", em_rt.rms_v_10m);
 	}
 
 	if (em_log.samples_60m_ready) {
 		em_rt.rms_c_60m /= MINUTE60;
 		em_rt.rms_v_60m /= MINUTE60;
-		printf("last 60 minutes current average %gA\n", em_rt.rms_c_60m);
-		printf("last 60 minutes voltage average %gV\n", em_rt.rms_v_60m);
+		printf("last 60 minutes current average %3.2fA\n", em_rt.rms_c_60m);
+		printf("last 60 minutes voltage average %3.2fV\n", em_rt.rms_v_60m);
 	}
 }
 
