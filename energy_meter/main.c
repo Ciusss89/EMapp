@@ -21,6 +21,7 @@ static int adc_offset;
 static int8_t pid_sampling = -1;
 static int8_t pid_collect_1m = -1;
 static int8_t pid_collect_10m = -1;
+static int8_t pid_collect_60m = -1;
 
 #if VERBOSE > 1
 #define STACK_SIZE THREAD_STACKSIZE_LARGE
@@ -31,9 +32,38 @@ static int8_t pid_collect_10m = -1;
 char em_sampling_stack[STACK_SIZE];
 char em_collect_1m_stack[STACK_SIZE];
 char em_collect_10m_stack[STACK_SIZE];
+char em_collect_60m_stack[STACK_SIZE];
 
 static struct em_realtime em_rt;
 static struct em_loggin em_log;
+
+static void *collect_60m(UNSUED void *arg)
+{
+	uint8_t t = 0; /* it counts 10 minute */
+
+	puts("[*] Energy Measuring: collect_60m has started");
+	while (1) {
+		xtimer_usleep(WAIT_15000ms);
+
+		/* Save the realtime samples */
+		em_log.c60m[t] = em_rt.rms_c;
+		em_log.v60m[t] = em_rt.rms_v;
+		t++;
+
+		/* Restart from 0 after 60 minutes so overwrites the old data
+		 * samples
+		 */
+		if (t == MINUTE60) {
+			/* Each 10s set 60m stats as ready. */
+			if (!em_log.samples_60m_ready)
+				em_log.samples_60m_ready = true;
+			t = 0;
+		}
+	}
+
+	return NULL;
+}
+
 
 static void *collect_10m(UNSUED void *arg)
 {
@@ -109,17 +139,34 @@ static  void print_data(void)
 	puts("Last 10m samples:\n id;Current;Voltage");
 	for(i = 0; i < MINUTE10; i++)
 		printf("%3d; %3.3f; %3.3f\n", i, em_log.c10m[i], em_log.v10m[i]);
+	puts("Last 60m samples:\n id;Current;Voltage");
+	for(i = 0; i < MINUTE10; i++)
+		printf("%3d; %3.3f; %3.3f\n", i, em_log.c60m[i], em_log.v60m[i]);
 #endif
 
-	printf("Current %0.3fA\n", em_rt.rms_c);
-	printf("Voltage %0.3fV\n", em_rt.rms_v);
+	printf("Current %gA\n", em_rt.rms_c);
+	printf("Voltage %gV\n", em_rt.rms_v);
+
+	em_rt.rms_c_60m = 0;
+	em_rt.rms_v_60m = 0;
+	em_rt.rms_c_10m = 0;
+	em_rt.rms_v_10m = 0;
+	em_rt.rms_c_1m = 0;
+	em_rt.rms_v_1m = 0;
 
 	for(i = 0; i < MINUTE && em_log.samples_1m_ready; i++) {
-		/* Note: MINUTE == MINUTE10 */
+		/* Note: MINUTE == MINUTE10 == MINUTE60 */
+
+		if(em_log.samples_60m_ready) {
+			em_rt.rms_c_60m += em_log.c60m[i];
+			em_rt.rms_v_60m += em_log.v60m[i];
+		}
+
 		if(em_log.samples_10m_ready) {
 			em_rt.rms_c_10m += em_log.c10m[i];
 			em_rt.rms_v_10m += em_log.v10m[i];
 		}
+
 		em_rt.rms_c_1m += em_log.c[i];
 		em_rt.rms_v_1m += em_log.v[i];
 	}
@@ -127,15 +174,22 @@ static  void print_data(void)
 	if (em_log.samples_1m_ready) {
 		em_rt.rms_c_1m /= MINUTE;
 		em_rt.rms_v_1m /= MINUTE;
-		printf("last minute current average %0.3fa\n", em_rt.rms_c_1m);
-		printf("last minute voltage average %0.3fv\n", em_rt.rms_v_1m);
+		printf("last 60 seconds current average %gA\n", em_rt.rms_c_1m);
+		printf("last 60 seconds voltage average %gV\n", em_rt.rms_v_1m);
 	}
 
 	if (em_log.samples_10m_ready) {
 		em_rt.rms_c_10m /= MINUTE10;
 		em_rt.rms_v_10m /= MINUTE10;
-		printf("last 10 minute current average %0.3fa\n", em_rt.rms_c_10m);
-		printf("last 10 minute voltage average %0.3fv\n", em_rt.rms_v_10m);
+		printf("last 10 minutes current average %gA\n", em_rt.rms_c_10m);
+		printf("last 10 minute voltage average %gV\n", em_rt.rms_v_10m);
+	}
+
+	if (em_log.samples_60m_ready) {
+		em_rt.rms_c_60m /= MINUTE60;
+		em_rt.rms_v_60m /= MINUTE60;
+		printf("last 60 minutes current average %gA\n", em_rt.rms_c_60m);
+		printf("last 60 minutes voltage average %gV\n", em_rt.rms_v_60m);
 	}
 }
 
@@ -186,6 +240,14 @@ int em_init(void)
 				       sizeof(em_collect_10m_stack),
 				       LOGGING_PRIO, 0, collect_10m,
 				       NULL, "em collect 10m");
+
+	if(pid_collect_10m < KERNEL_PID_UNDEF)
+		return -1;
+
+	pid_collect_60m = thread_create(em_collect_60m_stack,
+				       sizeof(em_collect_60m_stack),
+				       LOGGING_PRIO, 0, collect_60m,
+				       NULL, "em collect 60m");
 
 	if(pid_collect_10m < KERNEL_PID_UNDEF)
 		return -1;

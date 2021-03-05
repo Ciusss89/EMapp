@@ -47,6 +47,7 @@
 #define WAIT_500ms	(500LU * US_PER_MS)	/* delay of 500 ms */
 #define WAIT_1000ms	(1000LU * US_PER_MS)	/* delay of 1 s */
 #define WAIT_2500ms	(2500LU * US_PER_MS)	/* delay of 2.5 s */
+#define WAIT_15000ms	(15000LU * US_PER_MS)	/* delay of 15 s */
 
 #define SAMPLE_FREQUENCY	(AC_F * SAMPLE_UNIT)
 #define ADC_US_SLEEP		(K * K * 1/(SAMPLE_FREQUENCY))
@@ -59,8 +60,9 @@
 /* Bias measure count */
 #define BIAS_AVARAGE 10U
 
-#define MINUTE	240 /* Get a sample each 250ms */
+#define MINUTE 240 /* Get a sample each 250ms */
 #define MINUTE10 240 /* Get a sample each 2.5s  */
+#define MINUTE60 240 /* Get a sample each 15s */
 
 #define UNSUED __attribute__((__unused__))
 
@@ -75,23 +77,32 @@
  *  rms_v_1m: avg of last minute, updated each 250ms sec
  *  rms_c_10m: avg of last minute, updated each 60 sec
  *  rms_v_10m: avg of last minute, updated each 60 sec
+ *  rms_c_60m: avg of last minute, updated each 60 sec
+ *  rms_v_60m: avg of last minute, updated each 60 sec
  */
 struct em_realtime {
 	float rms_c, rms_v;
 	float rms_c_1m, rms_v_1m;
 	float rms_c_10m, rms_v_10m;
+	float rms_c_60m, rms_v_60m;  
 };
 
 /* @struct em_loggin contain collected datas
  *  c[MINUTE]: arrary where to store the current values
  *  v[MINUTE]: arrary where to store the voltage values
+ *  c10m[MINUTE10]: arrary where to store the current values
+ *  v10m[MINUTE10]: arrary where to store the voltage values
+ *  c60m[MINUTE60]: arrary where to store the current values
+ *  v60m[MINUTE60]: arrary where to store the voltage values
  *  samples_1m_ready: true if last 60 seconds values are fully initialized.
  *  samples_10m_ready: true if last 10 minute values are fully initialized.
+ *  samples_60m_ready: true if last 10 minute values are fully initialized.
  */
 struct em_loggin {
 	float c[MINUTE], v[MINUTE];
 	float c10m[MINUTE10], v10m[MINUTE10];
-	bool samples_1m_ready, samples_10m_ready;
+	float c60m[MINUTE60], v60m[MINUTE60];
+	bool samples_1m_ready, samples_10m_ready, samples_60m_ready;
 };
 
 /*
